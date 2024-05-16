@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2023, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2024, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -314,6 +314,14 @@ class SubVLNode : public VectorNode {
   virtual int Opcode() const;
 };
 
+//------------------------------SubVHFNode--------------------------------------
+// Vector subtract half float
+class SubVHFNode : public VectorNode {
+ public:
+  SubVHFNode(Node* in1, Node* in2, const TypeVect* vt) : VectorNode(in1,in2,vt) {}
+  virtual int Opcode() const;
+};
+
 //------------------------------SubVFNode--------------------------------------
 // Vector subtract float
 class SubVFNode : public VectorNode {
@@ -359,6 +367,14 @@ class MulVINode : public VectorNode {
 class MulVLNode : public VectorNode {
 public:
   MulVLNode(Node* in1, Node* in2, const TypeVect* vt) : VectorNode(in1, in2, vt) {}
+  virtual int Opcode() const;
+};
+
+//------------------------------MulVFNode--------------------------------------
+// Vector multiply half float
+class MulVHFNode : public VectorNode {
+public:
+  MulVHFNode(Node* in1, Node* in2, const TypeVect* vt) : VectorNode(in1, in2, vt) {}
   virtual int Opcode() const;
 };
 
@@ -441,6 +457,14 @@ public:
 class MulReductionVDNode : public ReductionNode {
 public:
   MulReductionVDNode(Node *ctrl, Node* in1, Node* in2) : ReductionNode(ctrl, in1, in2) {}
+  virtual int Opcode() const;
+};
+
+//------------------------------DivVHFNode-------------------------------------
+// Vector divide half float
+class DivVHFNode : public VectorNode {
+ public:
+  DivVHFNode(Node* in1, Node* in2, const TypeVect* vt) : VectorNode(in1,in2,vt) {}
   virtual int Opcode() const;
 };
 

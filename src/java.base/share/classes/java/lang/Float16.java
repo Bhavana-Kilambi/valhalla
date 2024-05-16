@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2024, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -111,7 +111,7 @@ public primitive class Float16 extends Number {
      *
      * @return  the binary16 encoded {@code short} value represented by this object
      *          converted to type {@code int}
-     * @jls 5.1.3 Widening Primitive Conversion
+     * @jls 5.1.2 Widening Primitive Conversion
      */
     public int intValue() {
         return (int)Float.float16ToFloat(value);
@@ -123,7 +123,7 @@ public primitive class Float16 extends Number {
      *
      * @return  the binary16 encoded {@code short} value represented by this object
      *          converted to type {@code long}
-     * @jls 5.1.3 Widening Primitive Conversion
+     * @jls 5.1.2 Widening Primitive Conversion
      */
     public long longValue() {
         return (long)Float.float16ToFloat(value);
@@ -134,6 +134,7 @@ public primitive class Float16 extends Number {
      *
      * @return the binary16 encoded {@code short} value represented by this object
      *         converted to type {@code float}
+     * @jls 5.1.2 Widening Primitive Conversion
      */
     public float floatValue() {
         return Float.float16ToFloat(value);
@@ -169,6 +170,54 @@ public primitive class Float16 extends Number {
     @IntrinsicCandidate
     public static Float16 sum(Float16 a, Float16 b) {
        return Float16.valueOf(Float.floatToFloat16(Float.float16ToFloat(a.float16ToRawShortBits()) + Float.float16ToFloat(b.float16ToRawShortBits())));
+    }
+
+    /**
+     * Subtracts two {@code Float16} values together as per the - operator semantics.
+     *
+     * @apiNote This method corresponds to the subtraction operation
+     * defined in IEEE 754.
+     *
+     * @param a the first operand
+     * @param b the second operand
+     * @return the difference of {@code a} and {@code b}
+     * @since 20
+     */
+    @IntrinsicCandidate
+    public static Float16 sub(Float16 a, Float16 b) {
+       return Float16.valueOf(Float.floatToFloat16(Float.float16ToFloat(a.float16ToRawShortBits()) - Float.float16ToFloat(b.float16ToRawShortBits())));
+    }
+
+    /**
+     * Multiplies two {@code Float16} values together as per the * operator semantics.
+     *
+     * @apiNote This method corresponds to the multiplication operation
+     * defined in IEEE 754.
+     *
+     * @param a the first operand
+     * @param b the second operand
+     * @return the multiplication of {@code a} and {@code b}
+     * @since 20
+     */
+    @IntrinsicCandidate
+    public static Float16 mul(Float16 a, Float16 b) {
+       return Float16.valueOf(Float.floatToFloat16(Float.float16ToFloat(a.float16ToRawShortBits()) * Float.float16ToFloat(b.float16ToRawShortBits())));
+    }
+
+    /**
+     * Divides two {@code Float16} values together as per the / operator semantics.
+     *
+     * @apiNote This method corresponds to the division operation
+     * defined in IEEE 754.
+     *
+     * @param a the first operand
+     * @param b the second operand
+     * @return the division of {@code a} and {@code b}
+     * @since 20
+     */
+    @IntrinsicCandidate
+    public static Float16 div(Float16 a, Float16 b) {
+       return Float16.valueOf(Float.floatToFloat16(Float.float16ToFloat(a.float16ToRawShortBits()) / Float.float16ToFloat(b.float16ToRawShortBits())));
     }
 
     /**

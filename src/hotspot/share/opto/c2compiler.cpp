@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1999, 2023, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1999, 2024, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -596,6 +596,15 @@ bool C2Compiler::is_intrinsic_supported(vmIntrinsics::ID id) {
     break;
   case vmIntrinsics::_sum_float16:
     if (!Matcher::match_rule_supported(Op_AddHF)) return false;
+    break;
+  case vmIntrinsics::_sub_float16:
+    if (!Matcher::match_rule_supported(Op_SubHF)) return false;
+    break;
+  case vmIntrinsics::_mul_float16:
+    if (!Matcher::match_rule_supported(Op_MulHF)) return false;
+    break;
+  case vmIntrinsics::_div_float16:
+    if (!Matcher::match_rule_supported(Op_DivHF)) return false;
     break;
   case vmIntrinsics::_hashCode:
   case vmIntrinsics::_identityHashCode:

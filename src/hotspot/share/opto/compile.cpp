@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997, 2023, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2024, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -3648,6 +3648,10 @@ void Compile::final_graph_reshaping_impl(Node *n, Final_Reshape_Counts& frc, Uni
 void Compile::final_graph_reshaping_main_switch(Node* n, Final_Reshape_Counts& frc, uint nop, Unique_Node_List& dead_nodes) {
   switch( nop ) {
   // Count all float operations that may use FPU
+  case Op_AddHF:
+  case Op_SubHF:
+  case Op_MulHF:
+  case Op_DivHF:
   case Op_AddF:
   case Op_SubF:
   case Op_MulF:

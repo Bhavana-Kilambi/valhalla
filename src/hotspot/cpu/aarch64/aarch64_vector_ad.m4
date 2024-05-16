@@ -217,6 +217,9 @@ source %{
         }
         break;
       case Op_AddVHF:
+      case Op_SubVHF:
+      case Op_MulVHF:
+      case Op_DivVHF:
         // FEAT_FP16 is enabled if both "fphp" and "asimdhp" features are supported.
         // Only the Neon instructions need this check. SVE supports half-precision floats
         // by default.
@@ -531,6 +534,7 @@ BINARY_OP(vsubB, SubVB, subv, sve_sub,  B)
 BINARY_OP(vsubS, SubVS, subv, sve_sub,  H)
 BINARY_OP(vsubI, SubVI, subv, sve_sub,  S)
 BINARY_OP(vsubL, SubVL, subv, sve_sub,  D)
+BINARY_OP(vsubHF, SubVHF, fsub, sve_fsub, H)
 BINARY_OP(vsubF, SubVF, fsub, sve_fsub, S)
 BINARY_OP(vsubD, SubVD, fsub, sve_fsub, D)
 
@@ -539,6 +543,7 @@ BINARY_OP_PREDICATE(vsubB, SubVB, sve_sub,  B)
 BINARY_OP_PREDICATE(vsubS, SubVS, sve_sub,  H)
 BINARY_OP_PREDICATE(vsubI, SubVI, sve_sub,  S)
 BINARY_OP_PREDICATE(vsubL, SubVL, sve_sub,  D)
+BINARY_OP_PREDICATE(vsubHF, SubVHF, sve_fsub, H)
 BINARY_OP_PREDICATE(vsubF, SubVF, sve_fsub, S)
 BINARY_OP_PREDICATE(vsubD, SubVD, sve_fsub, D)
 
@@ -607,26 +612,30 @@ instruct vmulL_sve(vReg dst_src1, vReg src2) %{
 %}
 
 // vector mul - floating-point
+BINARY_OP(vmulHF, MulVHF, fmul, sve_fmul, H)
 BINARY_OP(vmulF, MulVF, fmul, sve_fmul, S)
 BINARY_OP(vmulD, MulVD, fmul, sve_fmul, D)
 
 // vector mul - predicated
-BINARY_OP_PREDICATE(vmulB, MulVB, sve_mul,  B)
-BINARY_OP_PREDICATE(vmulS, MulVS, sve_mul,  H)
-BINARY_OP_PREDICATE(vmulI, MulVI, sve_mul,  S)
-BINARY_OP_PREDICATE(vmulL, MulVL, sve_mul,  D)
-BINARY_OP_PREDICATE(vmulF, MulVF, sve_fmul, S)
-BINARY_OP_PREDICATE(vmulD, MulVD, sve_fmul, D)
+BINARY_OP_PREDICATE(vmulB,  MulVB,  sve_mul,  B)
+BINARY_OP_PREDICATE(vmulS,  MulVS,  sve_mul,  H)
+BINARY_OP_PREDICATE(vmulI,  MulVI,  sve_mul,  S)
+BINARY_OP_PREDICATE(vmulL,  MulVL,  sve_mul,  D)
+BINARY_OP_PREDICATE(vmulHF, MulVHF, sve_fmul, H)
+BINARY_OP_PREDICATE(vmulF,  MulVF,  sve_fmul, S)
+BINARY_OP_PREDICATE(vmulD,  MulVD,  sve_fmul, D)
 
 // ------------------------------ Vector float div -----------------------------
 
 // vector float div
-BINARY_OP_NEON_SVE_PAIRWISE(vdivF, DivVF, fdiv, sve_fdiv, S)
-BINARY_OP_NEON_SVE_PAIRWISE(vdivD, DivVD, fdiv, sve_fdiv, D)
+BINARY_OP_NEON_SVE_PAIRWISE(vdivHF, DivVHF, fdiv, sve_fdiv, H)
+BINARY_OP_NEON_SVE_PAIRWISE(vdivF,  DivVF,  fdiv, sve_fdiv, S)
+BINARY_OP_NEON_SVE_PAIRWISE(vdivD,  DivVD,  fdiv, sve_fdiv, D)
 
 // vector float div - predicated
-BINARY_OP_PREDICATE(vdivF, DivVF, sve_fdiv, S)
-BINARY_OP_PREDICATE(vdivD, DivVD, sve_fdiv, D)
+BINARY_OP_PREDICATE(vdivHF, DivVHF, sve_fdiv, H)
+BINARY_OP_PREDICATE(vdivF,  DivVF,  sve_fdiv, S)
+BINARY_OP_PREDICATE(vdivD,  DivVD,  sve_fdiv, D)
 dnl
 dnl BITWISE_OP($1,        $2,      $3,        $4      )
 dnl BITWISE_OP(rule_name, op_name, insn_neon, insn_sve)

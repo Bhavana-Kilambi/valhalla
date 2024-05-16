@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, 2023, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2020, 2024, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -197,10 +197,18 @@ class methodHandle;
                                                                                                                         \
                                                                                                                         \
   /* Float16 intrinsics, similar to what we have in Math. */                                                            \
+  /* All names for Float16 binary operations */                                                                         \
+  do_name(sum_name, "sum")                                                                                              \
+  do_name(sub_name, "sub")                                                                                              \
+  do_name(mul_name, "mul")                                                                                              \
+  do_name(div_name, "div")                                                                                              \
+  /* Float16 signature for binary operations */                                                                         \
+  do_signature(floa16_float16_signature, "(Qjava/lang/Float16;Qjava/lang/Float16;)Qjava/lang/Float16;")                 \
+  /* Float16 intrinsics for binary operations */                                                                        \
   do_intrinsic(_sum_float16,              java_lang_Float16,      sum_name,           floa16_float16_signature,  F_S)   \
-   do_name(sum_name, "sum")                                                                                             \
-   do_signature(floa16_float16_signature, "(Qjava/lang/Float16;Qjava/lang/Float16;)Qjava/lang/Float16;")                \
-                                                                                                                        \
+  do_intrinsic(_sub_float16,              java_lang_Float16,      sub_name,           floa16_float16_signature,  F_S)   \
+  do_intrinsic(_mul_float16,              java_lang_Float16,      mul_name,           floa16_float16_signature,  F_S)   \
+  do_intrinsic(_div_float16,              java_lang_Float16,      div_name,           floa16_float16_signature,  F_S)   \
   /* StrictMath intrinsics, similar to what we have in Math. */                                                         \
   do_intrinsic(_min_strict,               java_lang_StrictMath,   min_name,           int2_int_signature,        F_S)   \
   do_intrinsic(_max_strict,               java_lang_StrictMath,   max_name,           int2_int_signature,        F_S)   \

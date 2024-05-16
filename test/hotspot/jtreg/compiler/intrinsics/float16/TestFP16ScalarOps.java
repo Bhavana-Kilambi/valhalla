@@ -23,47 +23,34 @@
 
 /**
 * @test
-* @bug     8308363
-* @summary Validate compiler IR for FP16 scalar operations.
+* @bug 8308363
+* @summary Validate compiler IR for binary FP16 scalar operations
 * @requires vm.compiler2.enabled
 * @library /test/lib /
-* @compile -XDenablePrimitiveClasses TestFP16ScalarAdd.java
-* @run driver compiler.vectorization.TestFP16ScalarAdd
+* @compile -XDenablePrimitiveClasses TestFP16ScalarOps.java
+* @run driver TestFP16ScalarOps
 */
 
-package compiler.vectorization;
 import compiler.lib.ir_framework.*;
 import java.util.Random;
 
-public class TestFP16ScalarAdd {
+public class TestFP16ScalarOps {
     private static final int count = 1024;
-
-    private float[] flin;
-    private float[] flout;
-    private Float16[] fin;
-    private Float16[] fout;
     private short[] src;
     private short[] dst;
     private short res;
-
     private Random rng;
 
     public static void main(String args[]) {
-        TestFramework.run(TestFP16ScalarAdd.class);
+        TestFramework.run(TestFP16ScalarOps.class);
     }
 
-    public TestFP16ScalarAdd() {
-        flin = new float[count];
-        flout = new float[count];
-        fin = new Float16[count];
-        fout = new Float16[count];
+    public TestFP16ScalarOps() {
         src = new short[count];
         dst = new short[count];
         rng = new Random(0);
 
         for (int i = 0; i < count; i++) {
-            flin[i] = rng.nextFloat();
-            fin[i] = Float16.valueOf(Float.floatToFloat16(rng.nextFloat()));
             src[i] = Float.floatToFloat16(i);
         }
     }
@@ -91,44 +78,33 @@ public class TestFP16ScalarAdd {
         res = Float16.sum(Float16.sum(Float16.sum(Float16.sum(hf0, hf1), hf2), hf3), hf4).float16ToRawShortBits();
     }
 
-    // Test for optimizing sequence - "dst (ReinterpretS2HF (ConvF2HF src)" in the backend to a single convert
-    // operation and do away with redundant moves
     @Test
-    @IR(applyIfCPUFeature = {"avx512_fp16" , "true"}, counts = {IRNode.CONVF2HFANDS2HF, " >= 1"})
-    @IR(applyIfCPUFeatureAnd = {"fphp", "true", "asimdhp", "true"}, counts = {IRNode.CONVF2HFANDS2HF, " >= 1"})
+    @IR(applyIfCPUFeatureAnd = {"fphp", "true", "asimdhp", "true"}, counts = {IRNode.SUB_HF, "> 0", IRNode.REINTERPRET_S2HF, "> 0", IRNode.REINTERPRET_HF2S, "> 0"})
     public void test3() {
-        for (int i = 0; i < count; ++i) {
-            fout[i] = Float16.sum(Float16.valueOf(Float.floatToFloat16(flin[i])), Float16.valueOf(Float.floatToFloat16(flin[i])));
-        }
-        checkResultTest3();
-    }
-
-    public void checkResultTest3() {
-        for (int i = 0; i < count; ++i) {
-            Float16 expected = Float16.valueOf(Float.floatToFloat16(flin[i] + flin[i]));
-            if (fout[i].float16ToRawShortBits() != expected.float16ToRawShortBits()) {
-                throw new RuntimeException("Invalid result: fout[" + i + "] = " + fout[i].float16ToRawShortBits() + " != " + expected.float16ToRawShortBits());
-            }
+        Float16 res = Float16.valueOf((short)0);
+        for (int i = 0; i < count; i++) {
+            res = Float16.sub(res, Float16.valueOf(src[i]));
+            dst[i] = res.float16ToRawShortBits();
         }
     }
 
-    // Test for optimizing sequence - "dst (ConvHF2F (ReinterpretHF2S src)" in the backend to a single convert
-    // operation and do away with redundant moves
     @Test
-    @IR(applyIfCPUFeatureAnd = {"fphp", "true", "asimdhp", "true"}, counts = {IRNode.REINTERPRETHF2SANDHF2F, " >= 1"})
+    @IR(applyIfCPUFeatureAnd = {"fphp", "true", "asimdhp", "true"}, counts = {IRNode.MUL_HF, "> 0", IRNode.REINTERPRET_S2HF, "> 0", IRNode.REINTERPRET_HF2S, "> 0"})
     public void test4() {
-        for (int i = 0; i < count; ++i) {
-            flout[i] = Float16.sum(fin[i], fin[i]).floatValue();
+        Float16 res = Float16.valueOf((short)0);
+        for (int i = 0; i < count; i++) {
+            res = Float16.mul(res, Float16.valueOf(src[i]));
+            dst[i] = res.float16ToRawShortBits();
         }
-        checkResultTest4();
     }
 
-    public void checkResultTest4() {
-        for (int i = 0; i < count; ++i) {
-            float expected = fin[i].floatValue() + fin[i].floatValue();
-            if (flout[i] != expected) {
-                throw new RuntimeException("Invalid result: flout[" + i + "] = " + flout[i] + " != " + expected);
-            }
+    @Test
+    @IR(applyIfCPUFeatureAnd = {"fphp", "true", "asimdhp", "true"}, counts = {IRNode.DIV_HF, "> 0", IRNode.REINTERPRET_S2HF, "> 0", IRNode.REINTERPRET_HF2S, "> 0"})
+    public void test5() {
+        Float16 res = Float16.valueOf((short)0);
+        for (int i = 0; i < count; i++) {
+            res = Float16.div(res, Float16.valueOf(src[i]));
+            dst[i] = res.float16ToRawShortBits();
         }
     }
 }

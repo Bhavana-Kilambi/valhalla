@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2024, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -23,8 +23,8 @@
 
 /*
  * @test
- * @bug     8308363
- * @summary Initial compiler support for Float16.add operation.
+ * @bug 8308363
+ * @summary Verify binary FP16 scalar operations
  * @compile -XDenablePrimitiveClasses FP16ScalarOperations.java
  * @run main/othervm -XX:+EnablePrimitiveClasses -XX:-TieredCompilation -Xbatch FP16ScalarOperations
  */
@@ -40,19 +40,28 @@ public class FP16ScalarOperations {
         Float16 obj2 = Float16.valueOf(val2);
         switch ((int)oper) {
             case '+' : return Float16.sum(obj1, obj2).float16ToRawShortBits();
+            case '-' : return Float16.sub(obj1, obj2).float16ToRawShortBits();
+            case '*' : return Float16.mul(obj1, obj2).float16ToRawShortBits();
+            case '/' : return Float16.div(obj1, obj2).float16ToRawShortBits();
             default  : throw new AssertionError("Unsupported Operation!");
         }
     }
 
-    public static void test_add(short [] arr1, short arr2[]) {
+    public static void test_operations(short [] arr1, short arr2[]) {
         for (int i = 0; i < arr1.length; i++) {
             validate('+', arr1[i], arr2[i]);
+            validate('-', arr1[i], arr2[i]);
+            validate('*', arr1[i], arr2[i]);
+            validate('/', arr1[i], arr2[i]);
         }
     }
 
     public static short expected_value(char oper, short input1, short input2) {
         switch((int)oper) {
             case '+' : return Float.floatToFloat16(Float.float16ToFloat(input1) + Float.float16ToFloat(input2));
+            case '-' : return Float.floatToFloat16(Float.float16ToFloat(input1) - Float.float16ToFloat(input2));
+            case '*' : return Float.floatToFloat16(Float.float16ToFloat(input1) * Float.float16ToFloat(input2));
+            case '/' : return Float.floatToFloat16(Float.float16ToFloat(input1) / Float.float16ToFloat(input2));
             default  : throw new AssertionError("Unsupported Operation!");
         }
     }
@@ -89,8 +98,8 @@ public class FP16ScalarOperations {
               (short)-32768,  // -0.0
         };
         for (int i = 0;  i < 1000; i++) {
-            test_add(input1, input2);
-            test_add(special_values, special_values);
+            test_operations(input1, input2);
+            test_operations(special_values, special_values);
         }
         System.out.println("PASS");
     }

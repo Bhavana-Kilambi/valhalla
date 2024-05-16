@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997, 2023, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2024, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -394,6 +394,26 @@ public:
   virtual uint ideal_reg() const { return Op_RegF; }
   int max_opcode() const { return Op_MaxF; }
   int min_opcode() const { return Op_MinF; }
+};
+
+//------------------------------MaxHFNode--------------------------------------
+// Maximum of 2 half floats.
+class MaxHFNode : public MaxFNode {
+public:
+  MaxHFNode(Node *in1, Node *in2) : MaxFNode(in1, in2) {}
+  virtual int Opcode() const;
+  int max_opcode() const { return Op_MaxHF; }
+  int min_opcode() const { return Op_MinHF; }
+};
+
+//------------------------------MinHFNode---------------------------------------
+// Minimum of 2 half floats.
+class MinHFNode : public MinFNode {
+public:
+  MinHFNode(Node *in1, Node *in2) : MinFNode(in1, in2) {}
+  virtual int Opcode() const;
+  int max_opcode() const { return Op_MaxHF; }
+  int min_opcode() const { return Op_MinHF; }
 };
 
 //------------------------------MaxDNode---------------------------------------

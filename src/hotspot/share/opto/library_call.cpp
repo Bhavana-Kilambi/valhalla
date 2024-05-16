@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1999, 2023, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1999, 2024, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -549,7 +549,10 @@ bool LibraryCallKit::try_to_inline(int predicate) {
   case vmIntrinsics::_longBitsToDouble:
   case vmIntrinsics::_floatToFloat16:
   case vmIntrinsics::_float16ToFloat:           return inline_fp_conversions(intrinsic_id());
-  case vmIntrinsics::_sum_float16:              return inline_fp16_operations(intrinsic_id());
+  case vmIntrinsics::_sum_float16:
+  case vmIntrinsics::_sub_float16:
+  case vmIntrinsics::_mul_float16:
+  case vmIntrinsics::_div_float16:              return inline_fp16_operations(intrinsic_id());
 
   case vmIntrinsics::_floatIsFinite:
   case vmIntrinsics::_floatIsInfinite:
@@ -5063,6 +5066,9 @@ bool LibraryCallKit::inline_fp16_operations(vmIntrinsics::ID id) {
 
   switch (id) {
   case vmIntrinsics::_sum_float16:   result = _gvn.transform(new AddHFNode(fld1, fld2)); break;
+  case vmIntrinsics::_sub_float16:   result = _gvn.transform(new SubHFNode(fld1, fld2)); break;
+  case vmIntrinsics::_mul_float16:   result = _gvn.transform(new MulHFNode(fld1, fld2)); break;
+  case vmIntrinsics::_div_float16:   result = _gvn.transform(new DivHFNode(0, fld1, fld2)); break;
 
   default:
     fatal_unexpected_iid(id);
