@@ -107,4 +107,24 @@ public class TestFP16ScalarOps {
             dst[i] = res.float16ToRawShortBits();
         }
     }
+
+    @Test
+    @IR(applyIfCPUFeatureAnd = {"fphp", "true", "asimdhp", "true"}, counts = {IRNode.MAX_HF, "> 0", IRNode.REINTERPRET_S2HF, "> 0", IRNode.REINTERPRET_HF2S, "> 0"})
+    public void test6() {
+        Float16 res = Float16.valueOf((short)0);
+        for (int i = 0; i < count; i++) {
+            res = Float16.max(res, Float16.valueOf(src[i]));
+            dst[i] = res.float16ToRawShortBits();
+        }
+    }
+
+    @Test
+    @IR(applyIfCPUFeatureAnd = {"fphp", "true", "asimdhp", "true"}, counts = {IRNode.MIN_HF, "> 0", IRNode.REINTERPRET_S2HF, "> 0", IRNode.REINTERPRET_HF2S, "> 0"})
+    public void test7() {
+        Float16 res = Float16.valueOf((short)0);
+        for (int i = 0; i < count; i++) {
+            res = Float16.min(res, Float16.valueOf(src[i]));
+            dst[i] = res.float16ToRawShortBits();
+        }
+    }
 }

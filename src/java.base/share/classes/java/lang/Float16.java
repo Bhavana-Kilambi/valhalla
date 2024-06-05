@@ -221,6 +221,40 @@ public primitive class Float16 extends Number {
     }
 
     /**
+     * Returns the greater of two {@code half float} values
+     *
+     * @apiNote
+     * This method corresponds to the maximum operation defined in
+     * IEEE 754.
+     *
+     * @param a the first operand
+     * @param b the second operand
+     * @return the greater of {@code a} and {@code b}
+     * @since 20
+     */
+    @IntrinsicCandidate
+    public static Float16 max(Float16 a, Float16 b) {
+        return Float16.valueOf(Float.floatToFloat16(Float.max(Float.float16ToFloat(a.float16ToRawShortBits()), Float.float16ToFloat(b.float16ToRawShortBits()))));
+    }
+
+    /**
+     * Returns the smaller of two {@code half float} values
+     *
+     * @apiNote
+     * This method corresponds to the minimum operation defined in
+     * IEEE 754.
+     *
+     * @param a the first operand
+     * @param b the second operand
+     * @return the smaller of {@code a} and {@code b}
+     * @since 20
+     */
+    @IntrinsicCandidate
+    public static Float16 min(Float16 a, Float16 b) {
+        return Float16.valueOf(Float.floatToFloat16(Float.min(Float.float16ToFloat(a.float16ToRawShortBits()), Float.float16ToFloat(b.float16ToRawShortBits()))));
+    }
+
+    /**
      * Return raw short value.
      * @return raw binary16 encoded {@code short} value represented by this object.
      * @since 20

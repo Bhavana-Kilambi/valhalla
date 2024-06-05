@@ -227,6 +227,17 @@ source %{
           break;
         }
         return false;
+      case Op_MinV:
+      case Op_MaxV:
+        // Since SuperWord does not generate MinV/MaxV nodes for integer subword types, if the basic_type
+        // for these nodes is T_SHORT, it means it's a half float value and we need to perform appropriate
+        // feature checks
+        if ((bt == T_SHORT && (UseSVE > 0 || (VM_Version::supports_fphp() && VM_Version::supports_asimdhp()))) ||
+             bt != T_SHORT) {
+          break;
+        } else {
+          return false;
+        }
       default:
         break;
     }
@@ -1052,7 +1063,8 @@ dnl VMINMAX_NEON(type, op_name, insn_fp, insn_integral)
 define(`VMINMAX_NEON', `
 instruct v$1_neon(vReg dst, vReg src1, vReg src2) %{
   predicate(Matcher::vector_element_basic_type(n) != T_LONG &&
-            VM_Version::use_neon_for_vector(Matcher::vector_length_in_bytes(n)));
+            VM_Version::use_neon_for_vector(Matcher::vector_length_in_bytes(n)) &&
+            !n->as_$2()->is_half_float());
   match(Set dst ($2 src1 src2));
   format %{ "v$1_neon $dst, $src1, $src2\t# B/S/I/F/D" %}
   ins_encode %{
@@ -1069,12 +1081,29 @@ instruct v$1_neon(vReg dst, vReg src1, vReg src2) %{
   ins_pipe(pipe_slow);
 %}')dnl
 dnl
+dnl VHFMINMAX_NEON($1,   $2,      $3     )
+dnl VHFMINMAX_NEON(type, op_name, insn_fp)
+define(`VHFMINMAX_NEON', `
+instruct vhf$1_neon(vReg dst, vReg src1, vReg src2) %{
+  predicate(n->as_$2()->is_half_float() &&
+            VM_Version::use_neon_for_vector(Matcher::vector_length_in_bytes(n)));
+  match(Set dst ($2 src1 src2));
+  format %{ "vhf$1_neon $dst, $src1, $src2\t# HF" %}
+  ins_encode %{
+    BasicType bt = Matcher::vector_element_basic_type(this);
+      __ $3($dst$$FloatRegister, get_arrangement(this),
+              $src1$$FloatRegister, $src2$$FloatRegister);
+  %}
+  ins_pipe(pipe_slow);
+%}')dnl
+dnl
 dnl VMINMAX_SVE($1,   $2,      $3,      $4           )
 dnl VMINMAX_SVE(type, op_name, insn_fp, insn_integral)
 define(`VMINMAX_SVE', `
 instruct v$1_sve(vReg dst_src1, vReg src2) %{
   predicate(Matcher::vector_element_basic_type(n) != T_LONG &&
-            !VM_Version::use_neon_for_vector(Matcher::vector_length_in_bytes(n)));
+            !VM_Version::use_neon_for_vector(Matcher::vector_length_in_bytes(n)) &&
+            !n->as_$2()->is_half_float());
   match(Set dst_src1 ($2 dst_src1 src2));
   format %{ "v$1_sve $dst_src1, $dst_src1, $src2\t# B/S/I/F/D" %}
   ins_encode %{
@@ -1092,11 +1121,28 @@ instruct v$1_sve(vReg dst_src1, vReg src2) %{
   ins_pipe(pipe_slow);
 %}')dnl
 dnl
+dnl VHFMINMAX_SVE($1,   $2,      $3     )
+dnl VHFMINMAX_SVE(type, op_name, insn_fp)
+define(`VHFMINMAX_SVE', `
+instruct vhf$1_sve(vReg dst_src1, vReg src2) %{
+  predicate(n->as_$2()->is_half_float() &&
+            !VM_Version::use_neon_for_vector(Matcher::vector_length_in_bytes(n)));
+  match(Set dst_src1 ($2 dst_src1 src2));
+  format %{ "vhf$1_sve $dst_src1, $dst_src1, $src2\t# HF" %}
+  ins_encode %{
+    assert(UseSVE > 0, "must be sve");
+    BasicType bt = Matcher::vector_element_basic_type(this);
+    __ $3($dst_src1$$FloatRegister, __ elemType_to_regVariant(bt),
+                  ptrue, $src2$$FloatRegister);
+  %}
+  ins_pipe(pipe_slow);
+%}')dnl
+dnl
 dnl VMINMAX_PREDICATE($1,   $2,      $3,      $4           )
 dnl VMINMAX_PREDICATE(type, op_name, insn_fp, insn_integral)
 define(`VMINMAX_PREDICATE', `
 instruct v$1_masked(vReg dst_src1, vReg src2, pRegGov pg) %{
-  predicate(UseSVE > 0);
+  predicate(UseSVE > 0 && !n->as_$2()->is_half_float());
   match(Set dst_src1 ($2 (Binary dst_src1 src2) pg));
   format %{ "v$1_masked $dst_src1, $pg, $dst_src1, $src2" %}
   ins_encode %{
@@ -1113,6 +1159,21 @@ instruct v$1_masked(vReg dst_src1, vReg src2, pRegGov pg) %{
   ins_pipe(pipe_slow);
 %}')dnl
 dnl
+dnl VHFMINMAX_PREDICATE($1,   $2,      $3     )
+dnl VHFMINMAX_PREDICATE(type, op_name, insn_fp)
+define(`VHFMINMAX_PREDICATE', `
+instruct vhf$1_masked(vReg dst_src1, vReg src2, pRegGov pg) %{
+  predicate(UseSVE > 0 && n->as_$2()->is_half_float());
+  match(Set dst_src1 ($2 (Binary dst_src1 src2) pg));
+  format %{ "vhf$1_masked $dst_src1, $pg, $dst_src1, $src2" %}
+  ins_encode %{
+    BasicType bt = Matcher::vector_element_basic_type(this);
+      __ $3($dst_src1$$FloatRegister, __ elemType_to_regVariant(bt),
+                  $pg$$PRegister, $src2$$FloatRegister);
+  %}
+  ins_pipe(pipe_slow);
+%}')dnl
+dnl
 // ------------------------------ Vector min -----------------------------------
 
 // vector min - LONG
@@ -1122,9 +1183,12 @@ VMINMAX_L_SVE(min, MinV, sve_smin)
 // vector min - B/S/I/F/D
 VMINMAX_NEON(min, MinV, fmin, minv)
 VMINMAX_SVE(min, MinV, sve_fmin, sve_smin)
+VHFMINMAX_NEON(min, MinV, fmin)
+VHFMINMAX_SVE(min, MinV, sve_fmin)
 
 // vector min - predicated
 VMINMAX_PREDICATE(min, MinV, sve_fmin, sve_smin)
+VHFMINMAX_PREDICATE(min, MinV, sve_fmin)
 
 // ------------------------------ Vector max -----------------------------------
 
@@ -1135,9 +1199,12 @@ VMINMAX_L_SVE(max, MaxV, sve_smax)
 // vector max - B/S/I/F/D
 VMINMAX_NEON(max, MaxV, fmax, maxv)
 VMINMAX_SVE(max, MaxV, sve_fmax, sve_smax)
+VHFMINMAX_NEON(max, MaxV, fmax)
+VHFMINMAX_SVE(max, MaxV, sve_fmax)
 
 // vector max - predicated
 VMINMAX_PREDICATE(max, MaxV, sve_fmax, sve_smax)
+VHFMINMAX_PREDICATE(max, MaxV, sve_fmax)
 
 // ------------------------------ MLA RELATED ----------------------------------
 

@@ -2734,8 +2734,24 @@ bool SuperWord::output() {
           if (VectorNode::can_transform_shift_op(n, velt_basic_type(n))) {
             opc = Op_RShiftI;
           }
-          vn = VectorNode::make(opc, in1, in2, vlen, velt_basic_type(n));
-          vlen_in_bytes = vn->as_Vector()->length_in_bytes();
+          // Handle the MinHF/MaxHF nodes here
+          if (VectorNode::is_minmax_halffloat_node(opc)) {
+            const TypeVect* vt = TypeVect::make(velt_basic_type(n), vlen);
+            int vopc = VectorNode::opcode(opc, velt_basic_type(n)); // If the control enters this point,
+                                                                    // it is either MinV/MaxV for half-floats
+            guarantee(vopc == Op_MinV || vopc == Op_MaxV, "Only MinV/MaxV are valid here");
+            switch(vopc) {
+              case(Op_MinV):
+                vn = new MinVNode(in1, in2, vt, true);
+                break;
+              case(Op_MaxV):
+                vn = new MaxVNode(in1, in2, vt, true);
+                break;
+            }
+          } else {
+            vn = VectorNode::make(opc, in1, in2, vlen, velt_basic_type(n));
+          }
+            vlen_in_bytes = vn->as_Vector()->length_in_bytes();
         }
       } else if (opc == Op_SqrtF || opc == Op_SqrtD ||
                  opc == Op_AbsF || opc == Op_AbsD ||

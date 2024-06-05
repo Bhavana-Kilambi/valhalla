@@ -38,7 +38,7 @@
 class VectorNode : public TypeNode {
  public:
 
-  VectorNode(Node* n1, const TypeVect* vt) : TypeNode(vt, 2) {
+    VectorNode(Node* n1, const TypeVect* vt) : TypeNode(vt, 2) {
     init_class_id(Class_Vector);
     init_req(1, n1);
   }
@@ -87,6 +87,7 @@ class VectorNode : public TypeNode {
   static bool can_transform_shift_op(Node* n, BasicType bt);
   static bool is_convert_opcode(int opc);
   static bool is_minmax_opcode(int opc);
+  static bool is_minmax_halffloat_node(int opc);
 
   static bool is_vshift_cnt_opcode(int opc);
 
@@ -503,16 +504,40 @@ public:
 //------------------------------MinVNode--------------------------------------
 // Vector Min
 class MinVNode : public VectorNode {
+private:
+  const bool _is_half_float;
 public:
-  MinVNode(Node* in1, Node* in2, const TypeVect* vt) : VectorNode(in1, in2, vt) {}
+  MinVNode(Node* in1, Node* in2, const TypeVect* vt, bool is_half_float = false) :
+           VectorNode(in1, in2, vt), _is_half_float(is_half_float) {
+    init_class_id(Class_MinV);
+  }
+  virtual uint hash() const { return VectorNode::hash() + _is_half_float; }
+  virtual bool cmp(const Node& n) const {
+    return VectorNode::cmp(n) && _is_half_float == ((MinVNode&)n)._is_half_float;
+  }
+  virtual uint size_of() const { return sizeof(*this); }
+  virtual bool is_half_float() const { return _is_half_float; }
   virtual int Opcode() const;
+
 };
 
 //------------------------------MaxVNode--------------------------------------
 // Vector Max
 class MaxVNode : public VectorNode {
+ private:
+  const bool _is_half_float;
  public:
-  MaxVNode(Node* in1, Node* in2, const TypeVect* vt) : VectorNode(in1, in2, vt) {}
+  MaxVNode(Node* in1, Node* in2, const TypeVect* vt, bool is_half_float = false) :
+           VectorNode(in1, in2, vt), _is_half_float(is_half_float) {
+    init_class_id(Class_MaxV);
+  }
+
+  virtual uint hash() const { return VectorNode::hash() + _is_half_float; }
+  virtual bool cmp(const Node& n) const {
+    return VectorNode::cmp(n) && _is_half_float == ((MaxVNode&)n)._is_half_float;
+  }
+  virtual uint size_of() const { return sizeof(*this); }
+  virtual bool is_half_float() const { return _is_half_float; }
   virtual int Opcode() const;
 };
 

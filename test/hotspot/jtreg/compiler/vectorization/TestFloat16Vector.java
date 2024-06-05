@@ -133,4 +133,44 @@ public class TestFloat16Vector {
             }
         }
     }
+
+    @Test
+    @Warmup(10000)
+    @IR(applyIfCPUFeature = {"sve", "true"}, counts = {IRNode.MIN_VHF, ">= 1"})
+    @IR(applyIfCPUFeatureAnd = {"fphp", "true", "asimdhp", "true"}, counts = {IRNode.MIN_VHF, ">= 1"})
+    public void vectorMinFloat16() {
+        for (int i = 0; i < LEN; ++i) {
+            output[i] = Float16.min(input[i], input[i]);
+        }
+        checkResultMin();
+    }
+
+    public void checkResultMin() {
+        for (int i = 0; i < LEN; ++i) {
+            Float16 expected = Float16.min(input[i], input[i]);
+            if (output[i].float16ToRawShortBits() != expected.float16ToRawShortBits()) {
+                throw new RuntimeException("Invalid result: output[" + i + "] = " + output[i].float16ToRawShortBits() + " != " + expected.float16ToRawShortBits());
+            }
+        }
+    }
+
+    @Test
+    @Warmup(10000)
+    @IR(applyIfCPUFeature = {"sve", "true"}, counts = {IRNode.MAX_VHF, ">= 1"})
+    @IR(applyIfCPUFeatureAnd = {"fphp", "true", "asimdhp", "true"}, counts = {IRNode.MAX_VHF, ">= 1"})
+    public void vectorMaxFloat16() {
+        for (int i = 0; i < LEN; ++i) {
+            output[i] = Float16.max(input[i], input[i]);
+        }
+        checkResultMax();
+    }
+
+    public void checkResultMax() {
+        for (int i = 0; i < LEN; ++i) {
+            Float16 expected = Float16.max(input[i], input[i]);
+            if (output[i].float16ToRawShortBits() != expected.float16ToRawShortBits()) {
+                throw new RuntimeException("Invalid result: output[" + i + "] = " + output[i].float16ToRawShortBits() + " != " + expected.float16ToRawShortBits());
+            }
+        }
+    }
 }

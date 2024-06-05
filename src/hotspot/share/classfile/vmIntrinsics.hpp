@@ -209,6 +209,8 @@ class methodHandle;
   do_intrinsic(_sub_float16,              java_lang_Float16,      sub_name,           floa16_float16_signature,  F_S)   \
   do_intrinsic(_mul_float16,              java_lang_Float16,      mul_name,           floa16_float16_signature,  F_S)   \
   do_intrinsic(_div_float16,              java_lang_Float16,      div_name,           floa16_float16_signature,  F_S)   \
+  do_intrinsic(_max_float16,              java_lang_Float16,      max_name,           floa16_float16_signature,  F_S)   \
+  do_intrinsic(_min_float16,              java_lang_Float16,      min_name,           floa16_float16_signature,  F_S)   \
   /* StrictMath intrinsics, similar to what we have in Math. */                                                         \
   do_intrinsic(_min_strict,               java_lang_StrictMath,   min_name,           int2_int_signature,        F_S)   \
   do_intrinsic(_max_strict,               java_lang_StrictMath,   max_name,           int2_int_signature,        F_S)   \

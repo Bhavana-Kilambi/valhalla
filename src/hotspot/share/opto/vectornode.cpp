@@ -119,6 +119,8 @@ int VectorNode::opcode(int sopc, BasicType bt) {
     }
   case Op_MinL:
     return (bt == T_LONG ? Op_MinV : 0);
+  case Op_MinHF:
+    return (bt == T_SHORT ? Op_MinV : 0);
   case Op_MinF:
     return (bt == T_FLOAT ? Op_MinV : 0);
   case Op_MinD:
@@ -134,6 +136,8 @@ int VectorNode::opcode(int sopc, BasicType bt) {
     }
   case Op_MaxL:
     return (bt == T_LONG ? Op_MaxV : 0);
+  case Op_MaxHF:
+    return (bt == T_SHORT ? Op_MaxV : 0);
   case Op_MaxF:
     return (bt == T_FLOAT ? Op_MaxV : 0);
   case Op_MaxD:
@@ -600,6 +604,10 @@ bool VectorNode::is_minmax_opcode(int opc) {
   return opc == Op_MinI || opc == Op_MaxI;
 }
 
+bool VectorNode::is_minmax_halffloat_node(int opc) {
+  return opc == Op_MinHF || opc == Op_MaxHF;
+}
+
 bool VectorNode::is_shift(Node* n) {
   return is_shift_opcode(n->Opcode());
 }
@@ -620,6 +628,8 @@ bool VectorNode::is_float16_node(int opc) {
   case Op_SubHF:
   case Op_MulHF:
   case Op_DivHF:
+  case Op_MinHF:
+  case Op_MaxHF:
   case Op_ConvF2HF:
   case Op_ReinterpretS2HF:
   case Op_ReinterpretHF2S:

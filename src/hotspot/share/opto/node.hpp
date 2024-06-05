@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997, 2023, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2024, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -190,7 +190,8 @@ class ShiftVNode;
 class ExpandVNode;
 class CompressVNode;
 class CompressMNode;
-
+class MinVNode;
+class MaxVNode;
 
 #ifndef OPTO_DU_ITERATOR_ASSERT
 #ifdef ASSERT
@@ -734,6 +735,8 @@ public:
         DEFINE_CLASS_ID(ExpandV, Vector, 5)
         DEFINE_CLASS_ID(CompressM, Vector, 6)
         DEFINE_CLASS_ID(Reduction, Vector, 9)
+        DEFINE_CLASS_ID(MinV, Vector, 10)
+        DEFINE_CLASS_ID(MaxV, Vector, 11)
           DEFINE_CLASS_ID(UnorderedReduction, Reduction, 0)
         DEFINE_CLASS_ID(NegV, Vector, 8)
       DEFINE_CLASS_ID(InlineType, Type, 8)
@@ -998,6 +1001,8 @@ public:
   DEFINE_CLASS_QUERY(StoreVectorScatter)
   DEFINE_CLASS_QUERY(ShiftV)
   DEFINE_CLASS_QUERY(Unlock)
+  DEFINE_CLASS_QUERY(MinV)
+  DEFINE_CLASS_QUERY(MaxV)
 
   #undef DEFINE_CLASS_QUERY
 

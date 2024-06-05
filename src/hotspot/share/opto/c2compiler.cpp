@@ -606,6 +606,12 @@ bool C2Compiler::is_intrinsic_supported(vmIntrinsics::ID id) {
   case vmIntrinsics::_div_float16:
     if (!Matcher::match_rule_supported(Op_DivHF)) return false;
     break;
+  case vmIntrinsics::_max_float16:
+    if (!Matcher::match_rule_supported(Op_MaxHF)) return false;
+    break;
+  case vmIntrinsics::_min_float16:
+    if (!Matcher::match_rule_supported(Op_MinHF)) return false;
+    break;
   case vmIntrinsics::_hashCode:
   case vmIntrinsics::_identityHashCode:
   case vmIntrinsics::_getClass:

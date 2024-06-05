@@ -35,33 +35,39 @@ public class FP16ScalarOperations {
 
     public static Random r = new Random(1024);
 
-    public static short actual_value(char oper, short val1, short val2) {
+    public static short actual_value(String oper, short val1, short val2) {
         Float16 obj1 = Float16.valueOf(val1);
         Float16 obj2 = Float16.valueOf(val2);
-        switch ((int)oper) {
-            case '+' : return Float16.sum(obj1, obj2).float16ToRawShortBits();
-            case '-' : return Float16.sub(obj1, obj2).float16ToRawShortBits();
-            case '*' : return Float16.mul(obj1, obj2).float16ToRawShortBits();
-            case '/' : return Float16.div(obj1, obj2).float16ToRawShortBits();
+        switch (oper) {
+            case "+" : return Float16.sum(obj1, obj2).float16ToRawShortBits();
+            case "-" : return Float16.sub(obj1, obj2).float16ToRawShortBits();
+            case "*" : return Float16.mul(obj1, obj2).float16ToRawShortBits();
+            case "/" : return Float16.div(obj1, obj2).float16ToRawShortBits();
+            case "min" : return Float16.min(obj1, obj2).float16ToRawShortBits();
+            case "max" : return Float16.max(obj1, obj2).float16ToRawShortBits();
             default  : throw new AssertionError("Unsupported Operation!");
         }
     }
 
     public static void test_operations(short [] arr1, short arr2[]) {
         for (int i = 0; i < arr1.length; i++) {
-            validate('+', arr1[i], arr2[i]);
-            validate('-', arr1[i], arr2[i]);
-            validate('*', arr1[i], arr2[i]);
-            validate('/', arr1[i], arr2[i]);
+            validate("+", arr1[i], arr2[i]);
+            validate("-", arr1[i], arr2[i]);
+            validate("*", arr1[i], arr2[i]);
+            validate("/", arr1[i], arr2[i]);
+            validate("min", arr1[i], arr2[i]);
+            validate("max", arr1[i], arr2[i]);
         }
     }
 
-    public static short expected_value(char oper, short input1, short input2) {
-        switch((int)oper) {
-            case '+' : return Float.floatToFloat16(Float.float16ToFloat(input1) + Float.float16ToFloat(input2));
-            case '-' : return Float.floatToFloat16(Float.float16ToFloat(input1) - Float.float16ToFloat(input2));
-            case '*' : return Float.floatToFloat16(Float.float16ToFloat(input1) * Float.float16ToFloat(input2));
-            case '/' : return Float.floatToFloat16(Float.float16ToFloat(input1) / Float.float16ToFloat(input2));
+    public static short expected_value(String oper, short input1, short input2) {
+        switch(oper) {
+            case "+" : return Float.floatToFloat16(Float.float16ToFloat(input1) + Float.float16ToFloat(input2));
+            case "-" : return Float.floatToFloat16(Float.float16ToFloat(input1) - Float.float16ToFloat(input2));
+            case "*" : return Float.floatToFloat16(Float.float16ToFloat(input1) * Float.float16ToFloat(input2));
+            case "/" : return Float.floatToFloat16(Float.float16ToFloat(input1) / Float.float16ToFloat(input2));
+            case "min" : return Float.floatToFloat16(Float.min(Float.float16ToFloat(input1), Float.float16ToFloat(input2)));
+            case "max" : return Float.floatToFloat16(Float.max(Float.float16ToFloat(input1), Float.float16ToFloat(input2)));
             default  : throw new AssertionError("Unsupported Operation!");
         }
     }
@@ -70,7 +76,7 @@ public class FP16ScalarOperations {
         return !((0xFFFF & actual) == (0xFFFF & expected));
     }
 
-    public static void validate(char oper, short input1, short input2) {
+    public static void validate(String oper, short input1, short input2) {
         short actual = actual_value(oper, input1, input2);
         short expected = expected_value(oper, input1, input2);
         if (compare(actual, expected)) {
